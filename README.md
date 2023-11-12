@@ -1,4 +1,4 @@
-# Accessibility Checker (Version 0.1)
+# Accessibility Checker
 
 `a11y-checker.sh` is a bash script that automates the process of checking web page accessibility using IBM's Equal Access Accessibility Checker. This script streamlines the process of scanning multiple URLs, managing output reports, and handling timeouts for non-responsive pages.
 
@@ -63,6 +63,29 @@ To use `a11y-checker.sh`, follow these steps:
    Replace the domain placeholders with actual URLs you want to check.
 
 4. **View the reports**: After the script execution, reports will be generated in the `scans/` directory, organized by domain and date-time.
+
+Great! Let's enhance the README by including the usage instructions for the `-f` flag to specify the output format. I'll append the relevant section for you:
+
+## Additional Usage Options
+
+### Output Format
+
+The `a11y-checker.sh` script supports specifying the output format for the accessibility reports. Use the `-f` flag followed by one of the valid format options: `json`, `csv`, `xlsx`, or `html`. The default format is `html`.
+
+#### Example Usage with Output Format:
+
+```bash
+./a11y-checker.sh -f json "domain1.com,sub.domain2.com/page,anotherdomain.com"
+```
+
+In this example, the script will generate reports in JSON format.
+
+### Notes on Output Formats:
+- **JSON**: Provides a structured data format, useful for further automated processing or analysis.
+- **CSV/XLSX**: Ideal for spreadsheet applications, data analysis, and reporting.
+- **HTML**: Offers a web-friendly format that is easy to view and navigate.
+
+Remember to replace the domain placeholders with actual URLs you want to check. The reports will be generated in the `scans/` directory, organized by domain and date-time, in the specified format.
 
 ## Notes
 - The script handles navigation timeouts and moves on to the next URL without manual intervention.
