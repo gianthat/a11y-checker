@@ -34,14 +34,14 @@ process_domain() {
   echo "https://$domain" > "$temp_url_file"
 
   local log_file="logs/achecker-log-${sanitized_domain}-$CURRENT_DATETIME.txt"
-  echo "Scanning $original_domain..."
+  echo "👀 Scanning $original_domain..."
   npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
 
   # Check for the existence of any report file in the directory
   if compgen -G "${report_dir}/*" > /dev/null; then
-    echo "Report generated for $original_domain: $report_dir/"
+    echo "✅ Report generated for $original_domain: $report_dir/"
   else
-    echo "No report generated for $original_domain"
+    echo "❌ No report generated for $original_domain. Check logs."
   fi
 
   # Clean up temporary URL file
