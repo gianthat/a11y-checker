@@ -2,6 +2,8 @@
 
 # Default output format
 OUTPUT_FORMAT="html"
+# Navigation timeout in seconds (10 seconds)
+NAVIGATION_TIMEOUT=10
 
 # Function to check if required command exists
 command_exists() {
@@ -35,22 +37,26 @@ process_domain() {
 
   local log_file="logs/achecker-log-${sanitized_domain}-$CURRENT_DATETIME.txt"
   echo "👀 Scanning $original_domain..."
-  npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
 
-  # Check for the existence of any report file in the directory
+  # Start achecker with timeout
+  if ! timeout $NAVIGATION_TIMEOUT npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1; then
+    echo "⏱️ Error: Navigation timeout exceeded for $original_domain. Check $original_domain in the browser."
+  fi
+
+  # Check if a report was generated
   if compgen -G "${report_dir}/*" > /dev/null; then
     echo "✅ Report generated for $original_domain!"
   else
-    echo "❌ No report generated for $original_domain. Check logs."
+    echo "❌ No report generated for $original_domain."
   fi
 
   # Clean up temporary URL file
   rm "$temp_url_file"
 }
 
-# Check for required command: achecker
-if ! command_exists achecker; then
-  echo "Error: This script requires 'achecker'. Please install it first."
+# Check for required command: achecker and timeout
+if ! command_exists achecker || ! command_exists timeout; then
+  echo "⚠️ This script requires 'achecker' and 'timeout'. Please install them first."
   exit 1
 fi
 
