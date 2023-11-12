@@ -39,7 +39,7 @@ process_domain() {
 
   # Check for the existence of any report file in the directory
   if compgen -G "${report_dir}/*" > /dev/null; then
-    echo "✅ Report generated for $original_domain: $report_dir/"
+    echo "✅ Report generated for $original_domain!"
   else
     echo "❌ No report generated for $original_domain. Check logs."
   fi
