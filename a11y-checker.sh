@@ -19,32 +19,32 @@ get_base_domain() {
 
 # Function to process each domain
 process_domain() {
-  local domain="$1"
+  local original_domain="$1"
+  local domain=${original_domain#https://}
+  domain=${domain#http://}
+  domain=${domain#www.}
   local base_domain=$(get_base_domain "$domain")
   local sanitized_domain=${domain//\//_}
-  local base_dir="scans/${base_domain}"
+  local base_dir="scans/$CURRENT_DATETIME/${base_domain}"
   local report_dir="$base_dir"
 
-  # Create base directory for the domain
-  mkdir -p "$base_dir"
+  mkdir -p "$report_dir"
 
-  # Create report directory for subpages
-  if [[ $domain == *"/"* ]]; then
-    local subpage=${sanitized_domain#*\/}
-    subpage=${subpage%%/*}
-    report_dir="$base_dir/$subpage"
-    mkdir -p "$report_dir"
-  fi
+  local temp_url_file="temp_url-$CURRENT_DATETIME.txt"
+  echo "https://$domain" > "$temp_url_file"
 
   local log_file="logs/achecker-log-${sanitized_domain}-$CURRENT_DATETIME.txt"
-  npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$domain" >"$log_file" 2>&1
+  npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
 
-  local report_file="$report_dir/${sanitized_domain}.${OUTPUT_FORMAT}"
+  local report_file="${report_dir}/${sanitized_domain}.${OUTPUT_FORMAT}"
   if [ -f "$report_file" ]; then
-    echo "Report generated for $domain: $report_file"
+    echo "Report generated for $original_domain: $report_file"
   else
-    echo "No report generated for $domain"
+    echo "No report generated for $original_domain"
   fi
+
+  # Clean up temporary URL file
+  rm "$temp_url_file"
 }
 
 # Check for required command: achecker
@@ -70,10 +70,11 @@ if [ "$#" -eq 0 ]; then
 fi
 
 # Create necessary directories
-mkdir -p logs scans
+mkdir -p logs
 
 # Current date and time for filename
 CURRENT_DATETIME=$(date "+%Y%m%d-%H%M%S")
+mkdir -p "scans/$CURRENT_DATETIME"
 
 # Split the domain argument into an array
 IFS=',' read -ra DOMAINS <<< "$1"
