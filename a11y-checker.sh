@@ -39,7 +39,7 @@ process_domain() {
   echo "👀 Scanning $original_domain..."
 
   # Start achecker with timeout
-  if ! timeout $NAVIGATION_TIMEOUT npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1; then
+  if ! timeout $NAVIGATION_TIMEOUT npx achecker --policies "WCAG_2_1" --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1; then
     echo "⏱️ Error: Navigation timeout exceeded for $original_domain. Check $original_domain in the browser."
   fi
 
