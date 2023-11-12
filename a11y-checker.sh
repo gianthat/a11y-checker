@@ -23,7 +23,7 @@ command_exists() {
   command -v "$@" >/dev/null 2>&1
 }
 
-# Check for required command: wkhtmltopdf and achecker
+# Check for required command: achecker
 if ! command_exists achecker; then
   echo "Error: This script requires 'achecker'. Please install it first."
   exit 1
@@ -53,18 +53,33 @@ for DOMAIN in "${DOMAINS[@]}"; do
   echo "$DOMAIN" >> "$URL_FILE"
 done
 
-# Run IBM Equal Access Accessibility Checker and capture output
+# Run IBM Equal Access Accessibility Checker for all domains at once
 LOG_FILE="achecker-log-$CURRENT_DATETIME.txt"
-npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "." "$URL_FILE" >"$LOG_FILE" 2>&1
+echo "Starting accessibility checks for all domains..."
 
-# Report generation and renaming
+# Run achecker in the background
+npx achecker --outputFormat "$OUTPUT_FORMAT" --outputFolder "." "$URL_FILE" >"$LOG_FILE" 2>&1 &
+
+# PID of the achecker process
+PID=$!
+
+# While achecker is running, echo "Still scanning..."
+while kill -0 $PID 2>/dev/null; do
+  echo "Still scanning, stand by..."
+  sleep 5
+done
+
+# Check and process reports for each domain
 for DOMAIN in "${DOMAINS[@]}"; do
   if [ -f "${DOMAIN}.${OUTPUT_FORMAT}" ]; then
-    echo "Report generated for $DOMAIN: a11y-check-${DOMAIN}-$CURRENT_DATETIME.${OUTPUT_FORMAT}"
+    echo "✅ Completed scan for $DOMAIN. Report: a11y-check-${DOMAIN}-CURRENT_DATETIME.${OUTPUT_FORMAT}"
   else
-    echo "No report generated for $DOMAIN"
+    echo "❌ Scanning $DOMAIN failed or no issues found."
   fi
 done
 
 # Clean up the URL file
+echo "Cleaning up the temp URL file."
 rm "$URL_FILE"
+
+echo "All scans completed. Check the logs and reports for details."

@@ -1,3 +1,5 @@
 *.html
 *.json
 *.pdf
+*.txt
+.DS_Store
