@@ -64,8 +64,6 @@ To use `a11y-checker.sh`, follow these steps:
 
 4. **View the reports**: After the script execution, reports will be generated in the `scans/` directory, organized by domain and date-time.
 
-Great! Let's enhance the README by including the usage instructions for the `-f` flag to specify the output format. I'll append the relevant section for you:
-
 ## Additional Usage Options
 
 ### Output Format
