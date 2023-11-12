@@ -3,7 +3,7 @@
 # Default output format
 OUTPUT_FORMAT="html"
 # Navigation timeout in seconds (10 seconds)
-NAVIGATION_TIMEOUT=10
+NAVIGATION_TIMEOUT=15
 
 # Function to check if required command exists
 command_exists() {
@@ -39,8 +39,12 @@ process_domain() {
   echo "👀 Scanning $original_domain..."
 
   # Start achecker with timeout
-  if ! timeout $NAVIGATION_TIMEOUT npx achecker --policies "WCAG_2_1" --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1; then
-    echo "⏱️ Error: Navigation timeout exceeded for $original_domain. Check $original_domain in the browser."
+  timeout $NAVIGATION_TIMEOUT npx achecker --policies "WCAG_2_1" --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
+  exit_status=$?
+
+  # Check exit status for timeout
+  if [ $exit_status -eq 124 ]; then
+    echo "😴 Error: Navigation timeout exceeded for $original_domain. Check $original_domain in the browser."
   fi
 
   # Check if a report was generated
