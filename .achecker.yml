@@ -1,0 +1,11 @@
+policies:
+  - "WCAG_2_1"
+reportLevels:
+  - violation
+  - potentialviolation
+  - recommendation
+  - potentialrecommendation
+  - manual
+outputFormat: html
+label:
+    - master

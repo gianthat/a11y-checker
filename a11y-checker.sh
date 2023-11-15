@@ -40,7 +40,7 @@ process_domain() {
 
   # Start achecker with timeout and loop
   while true; do
-    timeout $NAVIGATION_TIMEOUT npx achecker --policies "WCAG_2_1" --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
+    timeout $NAVIGATION_TIMEOUT npx achecker --config ".achecker.yml" --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
     exit_status=$?
 
     # Check exit status for timeout
