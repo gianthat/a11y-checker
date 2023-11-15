@@ -3,7 +3,7 @@
 # Default output format
 OUTPUT_FORMAT="html"
 # Navigation timeout in seconds (10 seconds)
-NAVIGATION_TIMEOUT=15
+NAVIGATION_TIMEOUT=60
 
 # Function to check if required command exists
 command_exists() {
@@ -38,14 +38,27 @@ process_domain() {
   local log_file="logs/achecker-log-${sanitized_domain}-$CURRENT_DATETIME.txt"
   echo "👀 Scanning $original_domain..."
 
-  # Start achecker with timeout
-  timeout $NAVIGATION_TIMEOUT npx achecker --policies "WCAG_2_1" --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
-  exit_status=$?
+  # Start achecker with timeout and loop
+  while true; do
+    timeout $NAVIGATION_TIMEOUT npx achecker --policies "WCAG_2_1" --outputFormat "$OUTPUT_FORMAT" --outputFolder "$report_dir" "$temp_url_file" >"$log_file" 2>&1
+    exit_status=$?
 
-  # Check exit status for timeout
-  if [ $exit_status -eq 124 ]; then
-    echo "😴 Error: Navigation timeout exceeded for $original_domain. Check $original_domain in the browser."
-  fi
+    # Check exit status for timeout
+    if [ $exit_status -eq 124 ]; then
+      echo "⏱️ Warning: Potential timeout exceeded for $original_domain."
+
+      # Prompt user for action
+      read -p "Continue waiting for this domain? (Y/N): " yn
+      case $yn in
+          [Yy]* ) echo "Continuing to wait...";;
+          [Nn]* ) echo "Moving to the next domain."; break;;
+          * ) echo "Please answer yes (Y) or no (N).";;
+      esac
+    else
+      # If the scan completes or an error occurs, exit the loop
+      break
+    fi
+  done
 
   # Check if a report was generated
   if compgen -G "${report_dir}/*" > /dev/null; then
